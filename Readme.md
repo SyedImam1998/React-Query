@@ -259,6 +259,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 - This hook required 2 arguments
     - Unique Key to identify the query.
     - function that return promise.
+- Here if your using react-router to navigate inside the application  once a page has got its data from the api it gets stored in the react query memory and when you comeback to the same page after browseing other page you donot see loading data but in background react query makes api call's it will only re-render the page if there is change in data from the API.  
+
 
  ```javascript
  import { useQuery } from "react-query";
@@ -303,3 +305,84 @@ const RqSuperHero = () => {
   );
 };
  ```
+
+  #### Handling Errors:
+
+  ```javascript
+  const fetchData=()=>{
+    return axios.get("http://localhost:4000/superheroes1");
+}
+const RqSuperHero = () => {  
+  const { isLoading, data, isError,error } = useQuery("super-heros", fetchData);
+
+  if (isLoading) {
+    return "Loading";
+  }
+  if(isError){
+    return error.message;
+  }
+  return (
+    <div>
+      {data?.data.map((item) => {
+        return <li key={item.id}>{item.name}</li>;
+      })}
+    </div>
+  );
+}; 
+
+  ```
+
+### React Query Dev Tools:
+
+![alt text](image-1.png)
+
+### Setup:
+
+```javascript
+
+import {ReactQueryDevtools} from 'react-query/devtools';
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <QueryClientProvider client={queryClient} >
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+      <ReactQueryDevtools initialIsOpen={false}  position="bottom-right"/>
+    </QueryClientProvider>
+  </React.StrictMode>
+);
+
+```
+### Caching:
+
+#### isFetching:
+
+- This object provides the status of api call that react query makes underneath, keeping isLoading to false.
+
+```javascript
+const {isLoading,isFetching}=useQuery('super-heros',fetchData);
+
+console.log(isLoading,isFetching)
+
+// {isLoading:false, isFetching:true}
+
+```
+#### Configure Cache Time:
+- Default Cache Time is 5 mins
+```javascript
+ const { isLoading, data, isError,error } = useQuery("super-heros", fetchData, {cacheTime:5000}); 
+```
+
+#### Stale Time:
+- Used when you know that data will not change for peroid of time so you stop making api calls to the backend server.
+
+- Example i know that the list of super heros will not change immediately or frequently in short duration of time. we can limit the api call that being made.
+
+```javascript
+ const { isLoading, data, isError,error } = useQuery("super-heros", fetchData, {
+    stale:30000
+  }); 
+```
+
+- So here once the data has been fetched data gets cached and when the user again visit the page before expiration of 30 second same old data will be shown to the user and api calls at the background will also not happened till the 30 sec duration.
