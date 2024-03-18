@@ -227,3 +227,79 @@ function Bookmarks({ category }) {
 ```
 
 - Just take the signal you get into the queryFn, forward it to fetch, and requests will be aborted automatically when category changes. 🎉
+
+
+### Installation:
+
+``` 
+npm i react-query
+```
+
+###  Setup:
+
+```javascript 
+
+import { QueryClientProvider, QueryClient } from "react-query";
+
+const queryClient = new QueryClient();
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <QueryClientProvider client={queryClient} >
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </QueryClientProvider>
+  </React.StrictMode>
+);
+
+```
+
+### useQuery:
+- This hook required 2 arguments
+    - Unique Key to identify the query.
+    - function that return promise.
+
+ ```javascript
+ import { useQuery } from "react-query";
+const RqSuperHero = () => {
+  const { isLoading, data } = useQuery("super-heros", () => {
+    return axios.get("http://localhost:4000/superheroes");
+  });
+
+  if (isLoading) {
+    return "Loading";
+  }
+  return (
+    <div>
+      {data?.data.map((item) => {
+        return <li key={item.id}>{item.name}</li>;
+      })}
+    </div>
+  );
+};
+
+ ```   
+
+ OR
+
+ ```javascript 
+
+const fetchData=()=>{
+    return axios.get("http://localhost:4000/superheroes");
+}
+const RqSuperHero = () => {  
+  const { isLoading, data } = useQuery("super-heros", fetchData);
+
+  if (isLoading) {
+    return "Loading";
+  }
+  return (
+    <div>
+      {data?.data.map((item) => {
+        return <li key={item.id}>{item.name}</li>;
+      })}
+    </div>
+  );
+};
+ ```
