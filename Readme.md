@@ -375,6 +375,9 @@ console.log(isLoading,isFetching)
 ```
 
 #### Stale Time:
+
+- Default stale time is 0 seconds.
+
 - Used when you know that data will not change for peroid of time so you stop making api calls to the backend server.
 
 - Example i know that the list of super heros will not change immediately or frequently in short duration of time. we can limit the api call that being made.
@@ -385,4 +388,170 @@ console.log(isLoading,isFetching)
   }); 
 ```
 
-- So here once the data has been fetched data gets cached and when the user again visit the page before expiration of 30 second same old data will be shown to the user and api calls at the background will also not happened till the 30 sec duration.
+- So here once the data has been fetched data gets cached and when the user again visit the page before expiration of 30 second same old data will be shown to the user and api calls at the background will also not happened till the 30 sec duration is completed.
+
+
+### Refetch Defaults:
+
+#### refetchOnMount:
+- **true**- This will refetch the data on Mount of the component if the data is Stale.
+
+- **false**- will not refetch the data once if the data is fetched.
+
+- "**always**"- will refetch the data no matter if the data is fresh or stale.
+
+```javascript
+ const { isLoading, data, isError,error } = useQuery("super-heros", fetchData, {
+    refetchOnMount:true
+  }); 
+```
+
+#### refetchOnWindowFocus:
+- Works by Default make it false if you donot need this feature.
+- Every Time you focus on the browser An API call is automatically happens in background if your data is **stale**.
+- Marking it has **always** will refetch the data not matter if the data is stale or not.
+
+```javascript
+ const { isLoading, data, isError,error } = useQuery("super-heros", fetchData, {
+    refetchOnWindowFocus:true
+  }); 
+```
+### Pooling Data:
+- It the process of fetching data at regular intervals.
+
+#### refetchInterval:
+
+- This make api request for every specified time period.
+
+```javascript
+  const { isLoading, data, isError,error } = useQuery("super-heros", fetchData, {
+    refetchInterval:2000,
+  });
+
+```
+
+#### refetchIntervalBackground:
+
+- This will make api requests in background even browser is not in focus.
+- this is not enabled by default.
+
+```javascript
+
+ const { isLoading, data, isError,error } = useQuery("super-heros", fetchData, {
+    refetchOnWindowFocus:true,
+    refetchIntervalBackground:true,
+  });
+
+```
+
+### Fetch Data On User Event:
+
+#### refetch:
+
+- To fetch the data on click of button.
+
+```javascript 
+const { isLoading, data, isError,error,refetch } = useQuery("super-heros", fetchData,{});
+
+<button onClick={refetch}>Refetch Data</button>
+```
+
+#### isFetching:
+- To show the status of the fetching to tell user that data is loading status.
+
+```javascript
+const { isLoading, data, isError,error,refetch,isFetching } = useQuery("super-heros", fetchData,{});
+
+if(isLoading || isFetching ){
+  return "Data Loading";
+}
+```
+
+### Success and Error Callbacks:
+
+- This callback will be helpfull when you want to perform any action like opening the popup, modal or showing toast notifications.
+
+
+```javascript
+
+ const onSuccess = (data) => {
+    console.log("success perform side kick",data);
+  };
+  const onError = (error) => {
+    console.log("Error perform side kick",error);
+  };
+
+  const { isLoading, data, isError, error, refetch } = useQuery(
+    "super-heros",
+    fetchData,
+    { onSuccess, onError }
+  );
+
+```
+
+### Data Transformation:
+
+- This could help us to transform the data even before the data could be consumed by the frontend component.
+
+#### select:
+
+- This will automatically get the APi data as an argument and once you have transformed over here and return it and now data which is destructed in useQuery will get the new transformed data.
+
+```javascript
+
+const { isLoading, data, isError, error, refetch } = useQuery(
+    "super-heros",
+    fetchData,
+    { onSuccess, onError, select:(data)=>{
+      return data.data.map(item=>item.name)
+    } }
+  );
+
+
+return (
+    <div>
+      {data.map((item) => {
+        return <li key={item}>{item}</li>;
+      })}
+      <br></br>
+      <button onClick={refetch}>Refetch Data</button>
+    </div>
+  );
+
+```
+
+### Query By Id:
+- Usecase when you want to get details of certain id like product details page.
+
+```javascript
+const fetchData = (id) => axios.get("http://localhost:4000/superheroes/" + id);
+const RqSuperHeroDetails = () => {
+  const { id } = useParams();
+  const { data, isLoading } = useQuery(["super-here", id], () => fetchData(id));
+
+  if (isLoading) {
+    return "Loading...";
+  }
+
+  return <div>{data.data.name + " is   " + data.data.alterego}</div>;
+};
+```
+- Here we use **['super-here',id]** this cache the data for each id otherwise it would show same data for all the id for few minutes.
+
+OR
+
+```javascript 
+const fetchData = ({queryKey}) => axios.get("http://localhost:4000/superheroes/" + queryKey[1]);
+
+const RqSuperHeroDetails = () => {
+  const { id } = useParams();
+  const { data, isLoading } = useQuery(["super-here",id], fetchData);
+
+  if (isLoading) {
+    return "Loading...";
+  }
+
+  return <div>{data.data.name + " is   " + data.data.alterego}</div>;
+};
+
+```
