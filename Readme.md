@@ -555,3 +555,117 @@ const RqSuperHeroDetails = () => {
 };
 
 ```
+
+
+### Parallel Queries:
+- Some time a single component need to call multiple apis to fetch nessary data.
+
+- Just declare useQuery multiple times.
+
+```javascript
+const fetchSuperHeros=()=>axios.get('http://localhost:4000/superheroes')
+const fetchPosts=()=>axios.get('http://localhost:4000/posts')
+
+
+const ParallelQueryPage = () => {
+    const{data:superHeroData}=useQuery('super-heros',fetchSuperHeros)
+    const {data:postData,}=useQuery('super-posts',fetchPosts)
+  return <div>ParallelQuery.pagP</div>;
+}; 
+
+```
+
+### Dynamic Paralle Queries:
+
+- Usecase let say a user has selected 2 or more heros and wanted to see their details so it is better to fetch data dynamically and we cannot use multiple use query as we donot know the no.of selections.
+
+#### useQueries:
+- This will return the array of query results.
+
+```JSX
+// in App.JSX
+<Route path="/dynamic" component=<Dynamic heroId=[1,2,5]></Dynamic></Route>
+
+// in Dynamic.jsx
+const fetchData=(heroId)=>{
+  return axios.post("...../${heroId}")
+}
+
+const Dynamic=()=>{
+  const queryResult=useQuery(
+    heroId.map((id)=>{
+      return {
+        queryKey:['super-key',id],
+        queryFun:()=>fetchData(id)
+      }
+    })
+  )
+  console.log(queryResult)
+  // logs array of results....
+
+  return <div>Dynamic Page...</div>
+}
+
+
+```
+
+### Dependent Queries:
+- If you have a senario where result of one api depends on another API.
+
+- Or if you want execute query one after the other.
+- Use **enabled** option in useQuery
+
+```JSX
+// in App.JSX
+<Route path='/dependent' element={<Dependent email="@SyedImam1998"/>}></Route> 
+
+// In Dependent.JSX
+const fetchData=(email)=>{
+  return axios.post("...../${email}")
+}
+const fetchData2=(channelId)=>{
+  return axios.post("...../${channelId}")
+}
+
+const Dependent=(props)=>{
+const {data:user}=useQuery(['user'],()=>fetchData(props.email))
+const channelId=user?.data.channelId;
+
+const {data:course}=useQuery(['channelId'],()=>fetchData2(channelId),{
+enabled:!!channelId // this means it will convert the channelId value to boolean, if it contains data then true if not then false.
+})
+}
+```
+
+### Intial Query Data:
+
+- There may be times when you already have the initial data for a query available in your app and can simply provide it directly to your query. If and when this is the case, you can use the config.`initialData` option to set the initial data for a query and skip the initial loading state!
+
+- Example:
+
+    1. Superman
+    2. Superman2
+    3. Superman3
+
+- When you click on any one above you will be navigated to ne page that shows the details of the clicked items.
+- But what if you have a partial data that could be usefull for the details page here is where Intail Query Data could be usefull.
+
+- As we have `QueryClientProvider client={queryClient}` declared we can make use of it.
+
+```JSX
+const queryClient= useQueryClient();
+
+useQuery(['super-hero',heroId],()=>fetchData(heroId),{
+  initialData:()=>{
+    const hero=queryClient.getQueryData('super-heroes') /// this contins the data already So using this key we will fetch the data from react query and use it.
+    ?.data?.find((hero)=>hero.id===parseInt(heroId))
+
+    if(hero){
+      return {data:hero}
+    }else{
+      return undefined // with this react query will understand and it will do hard reload.
+    }
+  }
+})
+
+```
