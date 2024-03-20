@@ -1,30 +1,33 @@
 {
-    "superheroes": [
-      {
-        "id": 1,
-        "name": "Superman",
-        "alterego": "Clark Kent"
-      },
-      {
-        "id": 2,
-        "name": "Batman",
-        "alterego": "Bruce Wayne"
-      },
-      {
-        "id": 3,
-        "name": "Wonder Woman",
-        "alterego": "Diana Prince"
-      },
-      {
-        "id": 4,
-        "name": "Spider-Man",
-        "alterego": "Peter Parker"
-      },
-      {
-        "id": 5,
-        "name": "Iron Man",
-        "alterego": "Tony Stark"
-      }
-    ]
-  }
-  
+  "superheroes": [
+    {
+      "id": 1,
+      "name": "Superman",
+      "alterego": "Clark Kent"
+    },
+    {
+      "id": 2,
+      "name": "Batman2",
+      "alterego": "Bruce Wayne"
+    },
+    {
+      "id": 3,
+      "name": "Wonder Woman",
+      "alterego": "Diana Prince"
+    },
+    {
+      "id": 4,
+      "name": "Spider-Man",
+      "alterego": "Peter Parker"
+    },
+    {
+      "id": 5,
+      "name": "Iron Man",
+      "alterego": "Tony Stark"
+    }
+  ],
+  "posts": [
+    { "id": "1", "title": "a title", "views": 100 },
+    { "id": "2", "title": "another title", "views": 200 }
+  ]
+}
