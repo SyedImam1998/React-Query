@@ -1,5 +1,35 @@
 # React Query
 
+
+
+
+| Section | Description |
+|-----|-------------|
+| [React Query](#what-is-react-query)  | Explains the definition of react query. |
+| [Complex useEffect](#but-we-have-useeffect-right)  | Section explains. how use effect Could make Fetching of data from the api Complex.  |
+| [Installation](#installation)   |  Helps you install react query |
+| [Project setup](#setup)  | Helps you  setup react query in your react project.  |
+| [useQuery](#usequery)  | Helps you easily fetch data from api.  |
+| [Handling errors](#handling-errors) |Helps you handle errors in react query.   |
+|[React Query Dev tools ](#react-query-dev-tools)  |Helps you add dev tools to your project.   |
+|[Caching](#caching)  | Helps you perform caching in your Project.  |
+|[Refresh default ](#refetch-defaults)  | Helps you refetch data from the api |
+|[Pooling data ](#pooling-data)  | Helps you pool data in your project.  |
+|[Fetch Data On User Event](#fetch-data-on-user-event)  | Helps you fetch data from the api on user event   |
+|[Success and error callback](#success-and-error-callbacks)  |Helps you trigger a function success. on success and  on error. While fetching dataI    |
+|[Data Transformation](#data-transformation)  | Helps transform data That you receive from the api.  |
+|[Query By Id](#query-by-id)  | Cache the API data as per the ID.  |
+|[Parallel Queries](#parallel-queries)  | Perform parallel Api Requests Using the Reactquery I .  |
+|[Dynamic Paralle Queries:](#dynamic-paralle-queries )  |Perform dynamic parallel request in react query.   |
+|[Dependent Queries](#dependent-queries)|Build dependent api requests. Using react query. |
+|[Intial Query Data](#intial-query-data)|Load initial data Before you get data from the api|
+|[Paginated Queries](#paginated-queries)|Build paginated requests using reactquery. |
+|[Infinite Queries](#infinite-queries)|Build a show more Feature using react query. |
+|[Posting DataI ](#posting-data)| Post data to server using react query. |
+|[Axios Interceptor:](#axios-interceptor)|Axios interceptors configuration. |
+
+
+
 ### What is React Query?
 - TanStack Query (FKA React Query) is often described as the missing data-fetching library for web applications, but in more technical terms, it makes fetching, caching, synchronizing and updating server state in your web applications a breeze.
 
