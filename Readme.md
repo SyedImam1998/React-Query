@@ -650,7 +650,7 @@ enabled:!!channelId // this means it will convert the channelId value to boolean
 - When you click on any one above you will be navigated to ne page that shows the details of the clicked items.
 - But what if you have a partial data that could be usefull for the details page here is where Intail Query Data could be usefull.
 
-- As we have `QueryClientProvider client={queryClient}` declared we can make use of it.
+- As we have `QueryClientProvider client={queryClient}` declared in main.jsx we can make use of it.
 
 ```JSX
 const queryClient= useQueryClient();
@@ -668,4 +668,172 @@ useQuery(['super-hero',heroId],()=>fetchData(heroId),{
   }
 })
 
+```
+
+### Paginated Queries:
+
+
+```JSX 
+
+const fetchData=(pageNumber)=>{
+  return axios.post("...../limit=2&page=${pageNumber}")
+}
+
+const [pageNumber,setPageNumber]=React.useState(1);
+const {data,isFetching}=useQuery(['colors',pageNumber],()=>fetchColors(pageNumber),{
+  keepPreviousData:true, // this will show the old data till new data is not ready..
+})
+
+<button onClick={()=>setPageNumber((page)=>page-1) disabled={pageNumber===1}}>Prev</button>
+
+<button onClick={()=>setPageNumber((page)=>page+1) disabled={pageNumber===4}}>Next</button>
+
+{isFetching && "Loading"}// to show status that new data is being fetched.
+```
+
+### Infinite Queries:
+
+- This is something like where we will show more data on click of button **LOAD MORE / SHOW MORE** where new data is added to the old data.
+
+- make use of useInfiniteQuery
+
+```JSX
+const fetchData=(pageNumber)=>{
+  return axios.post("...../limit=2&page=${pageNumber}")
+}
+
+const {data,isFetchingNextPage,hasNextPage,fetchNextPage,isFetching}=useInfinitQuery(
+  ['colors'],
+  fetchData,
+  {
+    getNextPageParam:(_lastPage,pages)=>{
+      if(pages.length<4){
+        return pages.length+1;
+      }else{
+        return undefined
+      }
+    }
+  }
+)
+ 
+
+ return (
+
+  <div>
+  {data?.pages.map((group,i)=>{
+    return (
+      <Fragment key={i}>
+      {
+        group.data.map(color=>(
+          <h2>
+              {color.id}.{color.label}
+          </h2>
+        ))
+      }
+      </Fragment>
+    )
+  })}
+  </div>
+
+
+
+  <button disabled={!hasNextPage}
+  onClick={fetchNextPage}
+  >Load More</button>
+ )
+
+```
+
+### Posting Data
+
+#### Mutation:
+- use this to post data to API.
+
+```JSX
+const addSuperHero=(data)=>axios.post('http://localhost:4000/superheros',data)
+
+const {mutate:addHero,isLoading, isError,error}=useMutation(addSuperHero);
+
+const handleClick=()=>{
+  const hero={name,alterego};
+  addHero(hero);
+}
+```
+
+#### Query Invalidation:
+- Help you to fetch latest data once new data has been added.
+
+```JSX
+const queryClient= useQueryClient();
+
+const {mutate:addHero,isLoading, isError,error}=useMutation(addSuperHero,{
+  onSuccess:()=>{
+    queryClient.invalidateQueries('super-heros') // this invalidate the data that is present in key super-heros this will make react query to re-fetch the data.
+  }
+}); 
+
+```
+
+#### Handling Mutation Response:
+- Once you have posted the data in return you will be getting the response which contain the data. So here we can avoid the extra another API get call to  get the latest data.
+
+
+```JSX
+const queryClient= useQueryClient();
+
+const {mutate:addHero,isLoading, isError,error}=useMutation(addSuperHero,{
+  onSuccess:(data)=>{
+   queryClient.setQueryData('super-heroes',(oldQueryData)=>{ // here you are setting the data in react query...
+    return {
+      ...oldQueryData,
+      data:[oldQueryData.data,data.data],
+    }
+   })
+  }
+}); 
+
+```
+
+#### Optimistic Update:
+
+- When you want to show case that your app is super fast we do this by adding data to react query cache first and then do API call.
+- This would give super fast experience..
+
+- will be using these below option present in useMutation.
+
+    - onMutate - called before the fire of useMutation and receives the same variables. Here we will be storing the data in react query even before api call has been made.
+
+    - onError - Triggers when Mutation expereice any error
+    - onSettled - After success of Mutation again an API call will be made to get data from the server
+
+
+### Axios Interceptor:
+
+- Imagine you're sending requests (like asking for information) to a server using Axios. Before your request reaches the server, an interceptor can step in. It can do things like adding headers to your request (extra information), logging the request, or handling errors.
+
+- Similarly, when the server responds to your request, the interceptor can catch that response before it reaches your application. It can modify the response, log it, or handle any errors that might have occurred.
+
+- So, in simple terms, an Axios interceptor helps you manage your requests and responses more efficiently by allowing you to intercept them and do additional tasks before they reach your application or after they come back from the server.
+
+- This how you configure axios interceptor when working with React Query.
+
+```javascript
+
+import axios from 'axios';
+
+const client=axios.create({baseURL:'http://localhost:4000/'})
+
+export const request=({...options})=>{
+  client.default.headers.common.Authorization=`Bearer Token`;
+  const onSuccess=(resposne)=>resposne;
+  const onError=(error)=>error;
+  return client(option).then(onSuccess).catch(onError)
+}
+
+
+/// While using...
+
+import {request} from '...';
+
+request({url:'/addHeroes',method:'post',data:hero})
 ```
